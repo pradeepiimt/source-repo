@@ -34,9 +34,10 @@ jobs:
           token:  ${{ steps.generate-token.outputs.token }}
           repository: pradeepiimt/target-repo
 
-      # - name: Trigger Target Workflow
-      #   uses: peter-evans/repository-dispatch@v3
-      #   with:
-      #     token:  ${{ steps.generate-token.outputs.token }}
-      #     event-type: trigger-other-workflow
-      #     client-payload: '{"github": ${{ toJson(github) }}}'
+      - name: Trigger Target Workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token:  ${{ steps.generate-token.outputs.token }}
+          event-type: trigger-other-workflow
+          repository: pradeepiimt/target-repo
+          client-payload: '{"github": ${{ toJson(github) }}}'
