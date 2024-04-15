@@ -28,9 +28,15 @@ jobs:
           app-id: ${{ vars.GH_APP_ID }}
           private-key: ${{ secrets.GH_APP_KEY }}
  
-      - name: Trigger Target Workflow
-        uses: peter-evans/repository-dispatch@v3
+      - name: Checkout Target Repo
+        uses: actions/checkout@v2
         with:
           token:  ${{ steps.generate-token.outputs.token }}
-          event-type: trigger-other-workflow
-          client-payload: '{"github": ${{ toJson(github) }}}'
+          repository: pradeepiimt/target-repo
+
+      # - name: Trigger Target Workflow
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     token:  ${{ steps.generate-token.outputs.token }}
+      #     event-type: trigger-other-workflow
+      #     client-payload: '{"github": ${{ toJson(github) }}}'
