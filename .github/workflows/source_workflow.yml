@@ -21,9 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_KEY }}
+ 
       - name: Trigger Target Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
-          token:  '${{ secrets.REPO_ACCESS_TOKENT }}'
+          token:  ${{ steps.generate-token.outputs.token }}
           event-type: trigger-other-workflow
           client-payload: '{"github": ${{ toJson(github) }}}'
