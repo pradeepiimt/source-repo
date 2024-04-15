@@ -1,0 +1,29 @@
+name: Trigger Other Workflow
+on:
+  push:
+    branches:
+     - feature/pradeep
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Successful Step
+        run: echo "This step is successful"
+      # - name: Failing Step
+      #   run: exit 1  # Deliberately fail this step
+      - name: Another Successful Step
+        run: echo "This step is also successful"I     
+  trigger_new_workflow:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Trigger Target Workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token:  '${{ secrets.REPO_ACCESS_TOKENT }}'     #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 # Personal Access Token with repo scope
+          event-type: trigger-other-workflow
+          client-payload: '{"github": ${{ toJson(github) }}}'
