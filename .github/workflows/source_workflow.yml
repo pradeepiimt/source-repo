@@ -44,6 +44,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [trigger_new_workflow]
     steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Check result for Success
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         run: |
