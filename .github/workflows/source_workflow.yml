@@ -37,7 +37,7 @@ jobs:
           client-payload: '{"github": ${{ toJson(github) }}}'
           ref: feature/pradeep
 
-      - name: Deploy CDN 
+      - name: Deploy CDN Server
         run: |
           echo "Deploy CDN"
           sleep 10
