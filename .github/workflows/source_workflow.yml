@@ -51,6 +51,7 @@ jobs:
             # Proceed with further actions based on success
           else
             echo "Target Workflow failed, handle accordingly"
+            echo "${{ github.event  }}"
             # Proceed with further actions based on failure
           fi
 
