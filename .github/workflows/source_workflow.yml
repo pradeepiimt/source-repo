@@ -3,6 +3,10 @@ on:
   push:
     branches:
      - feature/pradeep
+  workflow_run:
+    workflows: ["name_of_dependent_workflow_in_other_repository"]
+    types:
+      - completed  
   workflow_dispatch:
 
 jobs:
@@ -11,12 +15,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Successful Step
-        run: echo "This step is successful"
-      # - name: Failing Step
-      #   run: exit 1  # Deliberately fail this step
-      - name: Another Successful Step
-        run: echo "This step is also successful"I     
   trigger_new_workflow:
     runs-on: ubuntu-latest
     needs: [build]
@@ -34,7 +32,6 @@ jobs:
       #   with:
       #     token:  ${{ steps.generate-token.outputs.token }}
       #     repository: pradeepiimt/target-repo
-
       - name: Trigger Target Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -42,3 +39,16 @@ jobs:
           event-type: trigger-other-workflow
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
+
+  dependent_workflow_result:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check result for Success
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        run: |
+            echo "Dependent Workflow is success"
+
+      - name: Check result for Failure
+        if: ${{ github.event.workflow_run.conclusion != 'success' }}
+        run: |
+          echo "Dependent Workflow is success"
