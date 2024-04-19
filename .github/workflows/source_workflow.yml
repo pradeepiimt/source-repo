@@ -5,6 +5,7 @@ on:
      - feature/pradeep
   workflow_run:
     workflows: ["Target Workflow"]
+    repository: pradeepiimt/target-repo
     types:
       - completed  
   workflow_dispatch:
