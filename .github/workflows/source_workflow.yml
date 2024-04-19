@@ -41,10 +41,12 @@ jobs:
           event-type: trigger-other-workflow
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
-      - name: Get Github Details
-        env:
-          EVENT_JSON: ${{ toJson(github.event.workflow_run) }}
-        run: echo "$EVENT_JSON"
+
+
+      - name: Get Triggered Workflow Run Details
+        run: |
+          echo "Workflow Run ID: ${{ steps.trigger_other_workflow.outputs.workflow_run_id }}"
+          echo "${{ toJson(steps.trigger_other_workflow.outputs) }}"
 
       #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
       # - name: Check Target Workflow Status
