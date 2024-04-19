@@ -55,7 +55,7 @@ jobs:
           status=$(curl -s -X GET \
             -H "Authorization: Bearer ${{ steps.generate-token.outputs.token }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs | jq -r '.status')
           echo "::set-output name=status::$status"
 
         # Step 4: Check if the status is completed
