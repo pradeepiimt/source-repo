@@ -4,7 +4,7 @@ on:
     branches:
      - feature/pradeep
   workflow_run:
-    workflows: ["name_of_dependent_workflow_in_other_repository"]
+    workflows: ["Target Workflow"]
     types:
       - completed  
   workflow_dispatch:
