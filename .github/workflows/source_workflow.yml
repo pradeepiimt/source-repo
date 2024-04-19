@@ -41,33 +41,31 @@ jobs:
           event-type: trigger-other-workflow
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
+          ref: feature/pradeep
 
 
-      - name: Get Triggered Workflow Run Details
+      # Step 2: Wait for a few seconds for the triggered workflow to start
+      - name: Wait for Workflow to Start
+        run: sleep 30s
+
+      # Step 3: Get the status of the triggered workflow
+      - name: Get Workflow Run Status
+        id: get_workflow_status
         run: |
-          echo "Workflow Run ID: ${{ steps.trigger_other_workflow.outputs.workflow_run_id }}"
-          echo "${{ toJson(steps.trigger_other_workflow.outputs) }}"
+          status=$(curl -s -X GET \
+            -H "Authorization: Bearer ${{ steps.generate-token.outputs.token }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
+          echo "::set-output name=status::$status"
 
-      #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
-      # - name: Check Target Workflow Status
-      #   run: |
-      #     echo "Target Workflow status: ${{ github.event.workflow_run.conclusion }}"
-      #     if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-      #       echo "Target Workflow succeeded"
-      #       # Proceed with further actions based on success
-      #     else
-      #       echo "Target Workflow failed, handle accordingly"
-      #       echo "${{ github.event  }}"
-      #       # Proceed with further actions based on failure
-      #     fi
+        # Step 4: Check if the status is completed
+      - name: Check if Workflow Completed
+        if: steps.get_workflow_status.outputs.status == 'completed'
+        run: |
+          echo "Target workflow has completed. Proceed with further actions."
 
-  # on-success:
-  #   runs-on: ubuntu-latest
-  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  #   steps:
-  #     - run: echo 'The triggering workflow passed'
-  # on-failure:
-  #   runs-on: ubuntu-latest
-  #   if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-  #   steps:
-  #     - run: echo 'The triggering workflow failed'
+      # Step 5: If not completed, perform actions for running workflow
+      - name: Perform Actions for Running Workflow
+        if: steps.get_workflow_status.outputs.status != 'completed'
+        run: |
+          echo "Target workflow is still running. Perform further actions if needed."
