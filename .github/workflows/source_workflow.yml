@@ -1,71 +1,53 @@
-name: Trigger Other Workflow
+name: Source Workflow
+
 on:
   push:
     branches:
-     - feature/pradeep
-  workflow_run:
-    workflows: ["Target Workflow"]
-    repository: pradeepiimt/target-repo
-    types:
-      - completed  
-  workflow_dispatch:
+      - feature/pradeep
 
 jobs:
-  build:
+  get_workflow_id:
     runs-on: ubuntu-latest
+    outputs:
+      workflow_id: ${{ steps.get_id.outputs.workflow_id }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-  trigger_new_workflow:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Generate a token
-        id: generate-token
-        uses: actions/create-github-app-token@v1
+      - name: Get Workflow ID
+        id: get_id
+        uses: actions/github-script@v4
         with:
-          app-id: ${{ vars.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_KEY }}
-          owner: ${{ github.repository_owner }}
- 
-      # - name: Checkout Target Repo
-      #   uses: actions/checkout@v2
-      #   with:
-      #     token:  ${{ steps.generate-token.outputs.token }}
-      #     repository: pradeepiimt/target-repo
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: workflows } = await github.actions.listRepoWorkflows({
+              owner: 'pradeepiimt',
+              repo: 'target-repo'
+            });
+            const targetWorkflow = workflows.find(workflow => workflow.path === '.github/workflows/target_workflow.yml');
+            return { workflow_id: targetWorkflow.id };
+
+  trigger_and_wait:
+    runs-on: ubuntu-latest
+    needs: get_workflow_id
+    steps:
       - name: Trigger Target Workflow
-        id: trigger_other_workflow
-        uses: peter-evans/repository-dispatch@v3
+        id: trigger
+        uses: octokit/request-action@v2.x
         with:
-          token:  ${{ steps.generate-token.outputs.token }}
-          event-type: trigger-other-workflow
-          repository: pradeepiimt/target-repo
-          client-payload: '{"github": ${{ toJson(github) }}}'
-          ref: feature/pradeep
-
-
-      # Step 2: Wait for a few seconds for the triggered workflow to start
-      - name: Wait for Workflow to Start
-        run: sleep 30s
-
-      # Step 3: Get the status of the triggered workflow
-      - name: Get Workflow Run Status
-        id: get_workflow_status
-        run: |
-          status=$(curl -s -X GET \
-            -H "Authorization: Bearer ${{ steps.generate-token.outputs.token }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs | jq -r '.status')
-          echo "::set-output name=status::$status"
-
-        # Step 4: Check if the status is completed
-      - name: Check if Workflow Completed
-        if: steps.get_workflow_status.outputs.status == 'completed'
-        run: |
-          echo "Target workflow has completed. Proceed with further actions."
-
-      # Step 5: If not completed, perform actions for running workflow
-      - name: Perform Actions for Running Workflow
-        if: steps.get_workflow_status.outputs.status != 'completed'
-        run: |
-          echo "Target workflow is still running. Perform further actions if needed."
+          route: POST /repos/:owner/:repo/actions/workflows/:workflow_id/dispatches
+          workflow_id: ${{ needs.get_workflow_id.outputs.workflow_id }}
+          ref: ${{ github.ref }}
+          inputs: '{"input_name": "input_value"}' # If the target workflow requires inputs
+      
+      - name: Wait for Target Workflow
+        id: wait
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/:owner/:repo/actions/runs/:run_id
+          run_id: ${{ steps.trigger.outputs.data.id }}
+          repo: 'target-repo'
+          owner: 'pradeepiimt'
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check Workflow Status
+        run: echo "The status of the target workflow is ${{ steps.wait.outputs.data.status }}"
+      
+      # Proceed with next steps based on workflow status
