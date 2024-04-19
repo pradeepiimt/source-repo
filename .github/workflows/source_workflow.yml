@@ -42,8 +42,9 @@ jobs:
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
       - name: Get Github Details
-        run: |
-          echo '${{ github.event }}'
+        env:
+          EVENT_JSON: ${{ toJson(github.event) }}
+        run: echo "$EVENT_JSON"
 
       #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
       # - name: Check Target Workflow Status
