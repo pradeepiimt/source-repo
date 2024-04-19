@@ -42,24 +42,17 @@ jobs:
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
 
+        if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
       - name: Check Target Workflow Status
-        if: steps.trigger_other_workflow.outputs.workflow_id != ''  # Check if the workflow was triggered
         run: |
-          sleep 30  # Adjust this as necessary to allow time for the target workflow to run
-          # Get the status of the target workflow run
-          workflow_status=$(curl -s -X GET -u "username:${{ steps.generate-token.outputs.token }}" "https://api.github.com/repos/pradeepiimt/target-repo/actions/runs/${{ steps.trigger_other_workflow.outputs.workflow_id }}" | jq -r '.conclusion')
-          echo "Target Workflow status: $workflow_status"
-          if [ "$workflow_status" == "success" ]; then
+          echo "Target Workflow status: ${{ github.event.workflow_run.conclusion }}"
+          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
             echo "Target Workflow succeeded"
             # Proceed with further actions based on success
-          elif [ "$workflow_status" == "failure" ]; then
+          else
             echo "Target Workflow failed, handle accordingly"
             # Proceed with further actions based on failure
-          else
-            echo "Target Workflow is still running or has been cancelled"
-            # Handle other statuses if needed
           fi
-
 
   # on-success:
   #   runs-on: ubuntu-latest
