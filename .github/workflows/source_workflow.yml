@@ -43,7 +43,7 @@ jobs:
           client-payload: '{"github": ${{ toJson(github) }}}'
       - name: Get Github Details
         run: |
-          echo '${{ github.event.workflow_run }}'
+          echo '${{ github.event }}'
 
       #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
       # - name: Check Target Workflow Status
