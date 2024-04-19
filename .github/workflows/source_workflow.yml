@@ -41,19 +41,22 @@ jobs:
           event-type: trigger-other-workflow
           repository: pradeepiimt/target-repo
           client-payload: '{"github": ${{ toJson(github) }}}'
-
-        if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
-      - name: Check Target Workflow Status
+      - name: Get Github Details
         run: |
-          echo "Target Workflow status: ${{ github.event.workflow_run.conclusion }}"
-          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-            echo "Target Workflow succeeded"
-            # Proceed with further actions based on success
-          else
-            echo "Target Workflow failed, handle accordingly"
-            echo "${{ github.event  }}"
-            # Proceed with further actions based on failure
-          fi
+          echo '{"github": ${{ toJson(github) }}}'
+
+      #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
+      # - name: Check Target Workflow Status
+      #   run: |
+      #     echo "Target Workflow status: ${{ github.event.workflow_run.conclusion }}"
+      #     if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+      #       echo "Target Workflow succeeded"
+      #       # Proceed with further actions based on success
+      #     else
+      #       echo "Target Workflow failed, handle accordingly"
+      #       echo "${{ github.event  }}"
+      #       # Proceed with further actions based on failure
+      #     fi
 
   # on-success:
   #   runs-on: ubuntu-latest
