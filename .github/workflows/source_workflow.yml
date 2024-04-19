@@ -43,7 +43,7 @@ jobs:
           client-payload: '{"github": ${{ toJson(github) }}}'
       - name: Get Github Details
         env:
-          EVENT_JSON: ${{ toJson(github.event) }}
+          EVENT_JSON: ${{ toJson(github.event.workflow_run) }}
         run: echo "$EVENT_JSON"
 
       #   if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
