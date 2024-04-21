@@ -24,6 +24,7 @@ jobs:
           owner: ${{ github.repository_owner }}
  
       - name: Trigger Target Workflow
+        continue-on-error: true
         id: trigger_other_workflow
         run: |
           echo "Running Target Workflow..."
@@ -38,7 +39,12 @@ jobs:
           client-payload: '{"github": ${{ toJson(github) }}}'
           ref: feature/pradeep
 
+      - name: Deploy CDN server
+        run: echo "P0 test execution result failed, so revert CDN deployment"
+        if: ${{ failure() }}
+
       - name: Deploy CDN Server
+        if: ${{ success() }}
         run: |
-          echo "Deploy CDN"
+          echo "P0 execution result passed successfully !!"
           sleep 10
