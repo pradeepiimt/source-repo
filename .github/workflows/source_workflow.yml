@@ -28,7 +28,7 @@ jobs:
         id: trigger_other_workflow
         run: |
           echo "Running Target Workflow..."
-          sleep 10s
+          sleep 20s
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           #github_token:  ${{ steps.generate-token.outputs.token }}
