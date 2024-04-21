@@ -35,16 +35,17 @@ jobs:
           github_token:  ${{ secrets.REPO_ACCESS_TOKENT }}
           owner: pradeepiimt
           repo: target-repo
+          wait_interval: 30
           workflow_file_name: target_workflow.yml
           client-payload: '{"github": ${{ toJson(github) }}}'
           ref: feature/pradeep
 
-      - name: Deploy CDN server
-        run: echo "P0 test execution result failed, so revert CDN deployment"
-        if: ${{ failure() }}
-
-      - name: Deploy CDN Server
+      - name: Succeeded
         if: ${{ success() }}
         run: |
           echo "P0 execution result passed successfully !!"
           sleep 10
+
+      - name: Failed - Redeploy CDN with previous version
+        run: echo "P0 test execution result failed, so revert CDN deployment"
+        if: ${{ failure() }}
