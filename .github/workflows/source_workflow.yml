@@ -31,8 +31,8 @@ jobs:
           sleep 20s
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
-          #github_token:  ${{ steps.generate-token.outputs.token }}
-          github_token:  ${{ secrets.REPO_ACCESS_TOKENT }}
+          github_token:  ${{ steps.generate-token.outputs.token }}
+          #github_token:  ${{ secrets.REPO_ACCESS_TOKENT }}
           owner: pradeepiimt
           repo: target-repo
           wait_interval: 10
