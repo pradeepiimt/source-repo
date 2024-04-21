@@ -35,7 +35,7 @@ jobs:
           github_token:  ${{ secrets.REPO_ACCESS_TOKENT }}
           owner: pradeepiimt
           repo: target-repo
-          wait_interval: 30
+          wait_interval: 10
           workflow_file_name: target_workflow.yml
           client-payload: '{"github": ${{ toJson(github) }}}'
           ref: feature/pradeep
